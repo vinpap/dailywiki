@@ -9,10 +9,11 @@ from PyQt5.QtWidgets import QApplication, QLabel, QSystemTrayIcon, QMenu, QActio
 from PyQt5.QtGui import QIcon
 
 from articleselectorinterface import ArticleSelectorInterface
+from guisettingsinterface import GuiSettingsInterface
 
 
 
-class Gui():
+class GuiCore():
 
     "Infrastructure layer class that manages the graphical user interface"
 
@@ -44,6 +45,10 @@ class Gui():
         else:
             
             self.setAlternativeGUI()
+    
+    def setSettingsGui(self, settings_gui):
+        
+        self.settings_gui = settings_gui
     
     def setSystemTrayGUI(self):
         
@@ -120,7 +125,7 @@ class Gui():
     def openSettings(self):
         
         self.logger.debug("Opening settings...")
-        pass
+        self.settings_gui.displaySettings()
 
     def run(self):
 

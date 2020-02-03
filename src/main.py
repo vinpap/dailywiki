@@ -1,4 +1,4 @@
-from gui import Gui
+from gui import GuiCore
 import logging
 import random
 import os
@@ -7,6 +7,7 @@ import sys
 import time
 
 from articleselector import ArticleSelector
+from guisettings import GuiSettings
 
 logging.basicConfig(level=os.environ.get("LOGLEVEL", "DEBUG"), 
                     format='%(asctime)s - %(levelname)s - %(name)s - %(message)s')
@@ -39,7 +40,9 @@ if not checkNetworkStatus():
 random.seed()
 
 article_selector = ArticleSelector()
-app = Gui(article_selector)
+app = GuiCore(article_selector)
+gui_settings = GuiSettings()
+app.setSettingsGui(gui_settings)
 
 
 app.run()
