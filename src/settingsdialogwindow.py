@@ -3,7 +3,7 @@ import logging
 
 class SettingsDialogWindow(QDialog):
     
-    def __init__(self):
+    def __init__(self, settings_reader, settings_writer):
         
         self.logger = logging.getLogger(__name__)
         fh = logging.handlers.RotatingFileHandler('../logs/' + __name__ + '.log',
@@ -11,6 +11,11 @@ class SettingsDialogWindow(QDialog):
         fh.setFormatter(logging.Formatter(
                                 fmt='%(asctime)s - %(levelname)s - %(name)s - %(message)s'))
         self.logger.addHandler(fh)
+        
+        self.settings_reader = settings_reader
+        self.settings_writer = settings_writer
+        
+        self.current_settings = self.settings_reader.readSettings()
         
         super().__init__()
         self.setModal(True)
@@ -33,6 +38,18 @@ class SettingsDialogWindow(QDialog):
         
         self.topics_selection_boxes_group.addButton(self.random_article_box)
         self.topics_selection_boxes_group.addButton(self.select_topics_box)
+        
+        if self.current_settings["RANDOM"]:
+            
+            self.random_article_box.setChecked(True)
+        
+        else :
+            
+            self.select_topics_box.setChecked(True)
+        
+        if self.current_settings["AUTOLAUNCH"]:
+            
+            self.launch_at_startup_box.setChecked(True)
         
         self.setLayout()
         self.setGuiEvents()

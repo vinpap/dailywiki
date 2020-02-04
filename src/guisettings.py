@@ -6,7 +6,7 @@ import logging
 
 class GuiSettings(GuiSettingsInterface):
     
-    def __init__(self):
+    def __init__(self, settings_reader, settings_writer):
         
         self.logger = logging.getLogger(__name__)
         fh = logging.handlers.RotatingFileHandler('../logs/' + __name__ + '.log',
@@ -15,7 +15,8 @@ class GuiSettings(GuiSettingsInterface):
                                 fmt='%(asctime)s - %(levelname)s - %(name)s - %(message)s'))
         self.logger.addHandler(fh)
         self.app = QApplication.instance()
-        self.settings_dialog = SettingsDialogWindow()
+        
+        self.settings_dialog = SettingsDialogWindow(settings_reader, settings_writer)
         
     
     def displaySettings(self):

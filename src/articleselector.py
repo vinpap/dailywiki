@@ -1,14 +1,17 @@
 from articleselectorinterface import ArticleSelectorInterface
+from settingsreaderinterface import SettingsReaderInterface
 import logging
 import random
 import webbrowser
 import wikipedia
+import wikipediaapi
 import requests
 import time
+import sys
 
 class ArticleSelector(ArticleSelectorInterface):
     
-    def __init__(self):
+    def __init__(self, settings_reader):
         
         self.logger = logging.getLogger(__name__)
         fh = logging.handlers.RotatingFileHandler('../logs/' + __name__ + '.log',
@@ -18,9 +21,28 @@ class ArticleSelector(ArticleSelectorInterface):
         self.logger.addHandler(fh)
         
         wikipedia.set_lang("en")
+        self.wiki = wikipediaapi.Wikipedia('en')
+        self.settings = settings_reader.readSettings()
+        
+        if not self.settings["RANDOM"]:
+            
+            self.topics = self.settings["TOPICS"]
+        
+        else :
+            
+            self.topics = False
+        
+        self.articles_pool = []
     
     def getDailyArticleTitle(self):
         
+        if not self.topics :
+            
+            return self.getRandomArticle()
+        
+        return self.getRandomArticleInTopics()
+        
+    def getRandomArticle(self):
         
         keep_up = True
         tries = 0
@@ -64,7 +86,35 @@ class ArticleSelector(ArticleSelectorInterface):
             
             return self.article.title
     
+    def getRandomArticleInTopics(self):
+        
+        for i in self.topics :
+            
+            cat = self.wiki.page("Category:" + i)
+            
+            self.getCategoryMembers(cat.categorymembers)
+        
+        self.logger.debug("There are " + str(len(self.articles_pool)) + " articles in the pool")
+        
+        rand_int = random.randint(0, len(self.articles_pool)-1)
+        self.article = wikipedia.page(self.articles_pool[rand_int])
+        return self.article.title
+                
+    def getCategoryMembers(self, categorymembers, level=0, max_level=1):
+        
+        for c in categorymembers.values():
+            
+            if c.ns == wikipediaapi.Namespace.MAIN:
+                
+                self.articles_pool.append(c.title)
+                
+            elif c.ns == wikipediaapi.Namespace.CATEGORY and level < max_level:
+                
+                self.getCategoryMembers(c.categorymembers, level=level + 1, max_level=max_level)
+    
     def accessDailyArticle(self):
 
             
         webbrowser.open_new_tab(self.article.url)
+        
+        
