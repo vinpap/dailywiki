@@ -1,4 +1,5 @@
 from PyQt5.QtWidgets import QDialog, QGridLayout, QButtonGroup, QCheckBox, QPushButton
+from topicsselectiondialogwindow import TopicsSelectionDialogWindow
 import logging
 
 class SettingsDialogWindow(QDialog):
@@ -53,6 +54,8 @@ class SettingsDialogWindow(QDialog):
         
         self.setLayout()
         self.setGuiEvents()
+        
+        self.topics_selection_dialog_window = TopicsSelectionDialogWindow(self.settings_reader, self.settings_writer)
     
     def setLayout(self):
         
@@ -73,13 +76,32 @@ class SettingsDialogWindow(QDialog):
     
     def selectTopics(self):
         
-        #Afficher une fenêtre pour sélectionner les sujets
-        pass
+        self.logger.debug("Opening topics selection window...")
+        self.topics_selection_dialog_window.prepare()
+        self.topics_selection_dialog_window.show()
     
     def validateSettings(self):
         
         self.logger.debug("validateSettings called")
-        # Enregistrer les nouveaux paramètres
+        if self.random_article_box.isChecked():
+            
+            self.current_settings["RANDOM"] = True
+            
+        else:
+            
+            self.current_settings["RANDOM"] = False
+        
+        if self.launch_at_startup_box.isChecked():
+            
+            self.current_settings["AUTOLAUNCH"] = True
+            
+        else:
+            
+            self.current_settings["AUTOLAUNCH"] = False
+        
+        self.current_settings["TOPICS"] = self.topics_selection_dialog_window.getUserTopics()
+        
+        self.settings_writer.saveSettings(self.current_settings)
         self.accept()
 
     

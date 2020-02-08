@@ -17,19 +17,30 @@ logging.basicConfig(level=os.environ.get("LOGLEVEL", "DEBUG"),
 
 logger = logging.getLogger(__name__)
 
+# =============================================================================
+# Main script (used to launch the app)
+# =============================================================================
+
 
 def checkNetworkStatus():
     
-    while True:
+# =============================================================================
+# First we try to contact Wikipedia. If the requests still fail after a fixed
+# number of trials, we exit the program.
+# =============================================================================
+    tries = 0
+    
+    while tries <= 20 :
         
         try:
             
-            urllib.request.urlopen('http://google.com')
+            urllib.request.urlopen('https://www.wikipedia.org/')
             return True
         
         except urllib.error.URLError as err: 
             
             time.sleep(120)
+            tries += 1
     
     logger.info("Unable to reach Wikipedia, please check your Internet connection")
     return False
@@ -39,18 +50,24 @@ def checkNetworkStatus():
 if not checkNetworkStatus():
     
     sys.exit()
+    
 
-random.seed()
+random.seed() # The random module is used by different subsytems
 
-test_conf = SettingsStorage()
-test_read = SettingsReader(test_conf)
-test_write = SettingsWriter(test_conf)
+# =============================================================================
+# SettingsStorage: manages the physical storage of the settings
+# SettingsReader: reads the settings via SettingsStorage
+# SettingsWriter: saves the settings via SettingsStorage
+# =============================================================================
 
-print(test_read.readSettings())
+conf = SettingsStorage()
+read = SettingsReader(conf)
+write = SettingsWriter(conf)
 
-article_selector = ArticleSelector(test_read)
+
+article_selector = ArticleSelector(read)
 app = GuiCore(article_selector)
-gui_settings = GuiSettings(test_read, test_write)
+gui_settings = GuiSettings(read, write)
 app.setSettingsGui(gui_settings)
 
 

@@ -1,9 +1,18 @@
 from settingswriterinterface import SettingsWriterInterface
 from settingsstorageinterface import SettingsStorageInterface
 
+import logging
+
 class SettingsWriter(SettingsWriterInterface):
     
     def __init__(self, settings_storage):
+        
+        self.logger = logging.getLogger(__name__)
+        fh = logging.handlers.RotatingFileHandler('../logs/' + __name__ + '.log',
+                                maxBytes=10000000, backupCount=100)
+        fh.setFormatter(logging.Formatter(
+                                fmt='%(asctime)s - %(levelname)s - %(name)s - %(message)s'))
+        self.logger.addHandler(fh)
         
         self.settings_storage = settings_storage
     
