@@ -12,7 +12,9 @@ from settingswriter import SettingsWriter
 from settingsstorage import SettingsStorage
 from guisettings import GuiSettings
 
-logging.basicConfig(level=os.environ.get("LOGLEVEL", "DEBUG"), 
+MINIMUM_LOGGING_LEVEL = "INFO"
+
+logging.basicConfig(level=os.environ.get("LOGLEVEL", MINIMUM_LOGGING_LEVEL),
                     format='%(asctime)s - %(levelname)s - %(name)s - %(message)s')
 
 logger = logging.getLogger(__name__)
@@ -23,34 +25,34 @@ logger = logging.getLogger(__name__)
 
 
 def checkNetworkStatus():
-    
+
 # =============================================================================
 # First we try to contact Wikipedia. If the requests still fail after a fixed
 # number of trials, we exit the program.
 # =============================================================================
     tries = 0
-    
-    while tries <= 20 :
-        
+
+    while tries <= 20:
+
         try:
-            
+
             urllib.request.urlopen('https://www.wikipedia.org/')
             return True
-        
-        except urllib.error.URLError as err: 
-            
+
+        except urllib.error.URLError:
+
             time.sleep(120)
             tries += 1
-    
+
     logger.info("Unable to reach Wikipedia, please check your Internet connection")
     return False
 
 
 
 if not checkNetworkStatus():
-    
+
     sys.exit()
-    
+
 
 random.seed() # The random module is used by different subsytems
 
@@ -72,5 +74,3 @@ app.setSettingsGui(gui_settings)
 
 
 app.run()
-
-
